@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Imagebuilder v.0.1.0"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.0"
 echo "######################################################"
 echo ""
 
