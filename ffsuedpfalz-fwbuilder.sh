@@ -75,6 +75,9 @@ fi
 _RELEASE_TAGS=$(curl -nsSi -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -X GET https://api.github.com/repos/freifunk-gluon/gluon/releases | grep tag_name | cut -d'"' -f4 | tr '\n' ' ')
 _LATEST_RELEASE=${_RELEASE_TAGS%% *}
 
+#Master hinzufügen
+${_RELEASE_TAGS} = "master ${_RELEASE_TAGS}"
+
 echo "Aktuell verfügbare Gluon Versionen:"
 echo ${_RELEASE_TAGS}
 
@@ -138,7 +141,7 @@ cd gluon_${_GLUON_VERSION}
 
 echo ""
 echo "######################################################"
-echo "Sites holen, Images bauen, signieren und auf Webspace kopieren"
+echo "Sites holen, Images bauen und signieren"
 echo "######################################################"
 
 
@@ -235,7 +238,7 @@ fi
 
 
 
-
+#notitzen
 #make clean GLUON_TARGET=ar71xx-generic
 #ecdsaverify -f fingerabdurck -p pukkeay fiel
 # echo 3 > /proc/sys/vm/drop_caches
