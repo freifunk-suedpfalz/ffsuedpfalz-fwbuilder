@@ -76,7 +76,7 @@ _RELEASE_TAGS=$(curl -nsSi -H 'Accept: application/vnd.github.v3+json' -H 'Conte
 _LATEST_RELEASE=${_RELEASE_TAGS%% *}
 
 #Master hinzufügen
-${_RELEASE_TAGS} = "master ${_RELEASE_TAGS}"
+_RELEASE_TAGS="master ${_RELEASE_TAGS}"
 
 echo "Aktuell verfügbare Gluon Versionen:"
 echo ${_RELEASE_TAGS}
