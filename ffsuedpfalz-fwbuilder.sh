@@ -10,7 +10,7 @@
 # Vor-Einstellungen
 ######################################################
 
-# Anzahl der CPUs +1 für make -j 
+# Anzahl der CPUs +1 für make -j
 _CPUs=$(($(cat /proc/cpuinfo |grep -c processor)+1))
 # eigener privater ecdsa Key zum Signieren
 _SECRETKEY=~/ecdsa_key_ffsuedpfalz
@@ -38,14 +38,14 @@ if [[ $(which curl) ]]; then
   echo "OK curl ist da"
 else
   echo "curl fehlt"
-  _laeuft=false 
+  _laeuft=false
 fi
 
 if [[ $(which git) ]]; then
   echo "OK git ist da"
 else
   echo "git fehlt"
-  _laeuft=false 
+  _laeuft=false
 fi
 
 if [[ $(which ecdsasign) ]]; then
@@ -60,7 +60,7 @@ fi
 [[ ${_laeuft} ]] || exit;
 
 #TODO fehlendes Zeugs installieren / erzeugen?
-#apt-get -y install curl cmake git subversion make pkg-config build-essential unzip libncurses-dev gawk ......
+#apt-get -y install curl cmake git subversion make pkg-config build-essential unzip libncurses-dev gawk libssl-dev......
 
 
 
@@ -130,9 +130,9 @@ _GLUON_PATH=$(pwd)/gluon_${_GLUON_VERSION}
 
 # Gluon holen
 if [[ -d gluon_${_GLUON_VERSION} ]]; then
-  echo "Ordner für Gluon {_GLUON_VERSION} schon vorhanden"
+  echo "Ordner für Gluon ${_GLUON_VERSION} schon vorhanden"
 else
-  echo "Clone Gluon {_GLUON_VERSION}"
+  echo "Clone Gluon ${_GLUON_VERSION}"
   git clone --depth 1 -b ${_GLUON_VERSION} https://github.com/freifunk-gluon/gluon.git gluon_${_GLUON_VERSION}
 fi
 
@@ -145,6 +145,9 @@ echo "Sites holen, Images bauen und signieren"
 echo "######################################################"
 
 
+_SITE_VERSION=${_GLUON_VERSION}
+
+
 #Images für Freifunk-Suedpfalz bauen
 echo ""
 echo ""
@@ -155,7 +158,7 @@ if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
     #TODO git pull?
   else
     echo "Clone site-ffsuedpfalz "
-    git clone --depth 1 -b master https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffsuedpfalz
+    git clone --depth 1 -b ${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffsuedpfalz
   fi
   export GLUON_SITEDIR=${_GLUON_PATH}/site-ffsuedpfalz
 
@@ -177,6 +180,9 @@ if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
   make -j ${_CPUs} GLUON_TARGET=ar71xx-generic
   echo ""
 
+  # TODO bei Fehler make nochmal mit V=s starten
+
+  # TODO nur signieren wenn make durchlief
   # signieren
   make manifest
   contrib/sign.sh ${_SECRETKEY} ${GLUON_IMAGEDIR}/sysupgrade/${GLUON_BRANCH}.manifest
@@ -196,7 +202,7 @@ if [[ ${_BAUE_FFHASSLOCH} ]]; then
     #TODO git pull?
   else
     echo "Clone site-ffhassloch"
-    git clone --depth 1 -b ffhassloch https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffhassloch
+    git clone --depth 1 -b ffhassloch-${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffhassloch
   fi
   export GLUON_SITEDIR=${_GLUON_PATH}/site-ffhassloch
   export GLUON_IMAGEDIR=${_GLUON_PATH}/images-ffhassloch
@@ -217,6 +223,9 @@ if [[ ${_BAUE_FFHASSLOCH} ]]; then
   make -j ${_CPUs} GLUON_TARGET=ar71xx-generic
   echo ""
 
+  # TODO bei Fehler make nochmal mit V=s starten
+
+  # TODO nur signieren wenn make durchlief
   # signieren
   make manifest
   contrib/sign.sh ${_SECRETKEY} ${GLUON_IMAGEDIR}/sysupgrade/${GLUON_BRANCH}.manifest
