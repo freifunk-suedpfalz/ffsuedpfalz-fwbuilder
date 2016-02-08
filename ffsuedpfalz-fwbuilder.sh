@@ -115,6 +115,14 @@ if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
   _BAUE_FFHASSLOCH=1
 fi
 
+_ANTWORT="notset"
+_VERBOSE=""
+while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
+  read -e -p "make mit V=s starten? [J/n] " _ANTWORT
+done
+if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
+  _VERBOSE="V=s"
+fi
 
 
 
@@ -176,8 +184,7 @@ if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
 
   # bauen
   echo $(date)
-  echo "make -j ${_CPUs} GLUON_TARGET=ar71xx-generic ..."
-  make -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
@@ -219,8 +226,7 @@ if [[ ${_BAUE_FFHASSLOCH} ]]; then
 
   # bauen
   echo $(date)
-  echo "make -j ${_CPUs} GLUON_TARGET=ar71xx-generic ..."
-  make -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
