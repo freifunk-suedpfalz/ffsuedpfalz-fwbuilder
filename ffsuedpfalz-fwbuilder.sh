@@ -152,8 +152,8 @@ echo "######################################################"
 echo "Sites holen, Images bauen und signieren"
 echo "######################################################"
 
-
-_SITE_VERSION=${_GLUON_VERSION}
+# macht aus v2016.1.x v2016.1 
+_SITE_VERSION=${_GLUON_VERSION%.*} 
 
 
 #Images für Freifunk-Suedpfalz bauen
