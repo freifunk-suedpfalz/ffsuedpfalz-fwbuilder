@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.0"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.1"
 echo "######################################################"
 echo ""
 
@@ -75,12 +75,13 @@ fi
 _RELEASE_TAGS=$(curl -nsSi -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -X GET https://api.github.com/repos/freifunk-gluon/gluon/releases | grep tag_name | cut -d'"' -f4 | tr '\n' ' ')
 _LATEST_RELEASE=${_RELEASE_TAGS%% *}
 
-#Master hinzufügen
+# master hinzufügen
 _RELEASE_TAGS="master ${_RELEASE_TAGS}"
 
 echo "Aktuell verfügbare Gluon Versionen:"
 echo ${_RELEASE_TAGS}
 
+# Gluon Version auswählen
 _GLUON_VERSION="notset"
 # Gluon-Release-Tag im gluon github repository auswählen
 while [[ ! $_RELEASE_TAGS =~ (^| )$_GLUON_VERSION($| ) ]]; do
@@ -88,16 +89,39 @@ while [[ ! $_RELEASE_TAGS =~ (^| )$_GLUON_VERSION($| ) ]]; do
 done
 echo ""
 
+# Gluon Branch auswählen, stable beta oder experimental
 while [[ "$GLUON_BRANCH" != "stable" && "$GLUON_BRANCH" != "beta" && "$GLUON_BRANCH" != "experimental" ]]; do
   read -e -p "Firmware Branch ( stable | beta | experimental ) bauen: " -i "stable" GLUON_BRANCH
 done
-# mit GLUON_BRANCH wird Autoupdate aktiviert voreingestellt
+# mit export GLUON_BRANCH wird Autoupdate aktiviert voreingestellt
 export GLUON_BRANCH
 echo ""
+
+# Build Target auswählen
+# ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest x86-64 x86-xen_domu
+while [[ "$GLUON_TARGET" != "ar71xx-generic" && "$GLUON_TARGET" != "ar71xx-nand" && "$GLUON_TARGET" != "mpc85xx-generic" && "$GLUON_TARGET" != "x86-generic" && "$GLUON_TARGET" != "x86-kvm_guest" && "$GLUON_TARGET" != "x86-64" && "$GLUON_TARGET" != "x86-xen_domu" ]]; do
+  read -e -p "Gluon Target ( ar71xx-generic | ar71xx-nand | mpc85xx-generic | x86-generic | x86-kvm_guest | x86-64 | x86-xen_domu ) bauen: " -i "ar71xx-generic" GLUON_TARGET
+done
+export GLUON_TARGET
 
 # Secret-key zum signieren der Manifestdatei
 read -e -p "Dein privater ecdsa-key zum signieren der Manifestdatei: " -i ${_SECRETKEY} _SECRETKEY
 
+# Verbose Ausgaben beim bauen?
+_ANTWORT="notset"
+_VERBOSE=""
+while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
+  read -e -p "make mit V=s starten? [J/n] " _ANTWORT
+done
+if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
+  _VERBOSE="V=s"
+fi
+
+
+
+######################################################
+# Community Images
+######################################################
 
 _ANTWORT="notset"
 while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
@@ -115,14 +139,6 @@ if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
   _BAUE_FFHASSLOCH=1
 fi
 
-_ANTWORT="notset"
-_VERBOSE=""
-while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
-  read -e -p "make mit V=s starten? [J/n] " _ANTWORT
-done
-if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
-  _VERBOSE="V=s"
-fi
 
 
 
@@ -132,20 +148,20 @@ echo "Gluon holen"
 echo "######################################################"
 echo ""
 
-# absoluter Dateipfad zum gluon Ordner. Dieses Script muss eine ebene höher liegen ... TODO flexibler, fehlerunanfälliger machen
 _GLUON_PATH=$(pwd)/gluon_${_GLUON_VERSION}
 
 
 # Gluon holen
-if [[ -d gluon_${_GLUON_VERSION} ]]; then
-  echo "Ordner für Gluon ${_GLUON_VERSION} schon vorhanden"
+if [[ -d ${_GLUON_PATH} ]]; then
+  echo "Ordner für Gluon ${_GLUON_VERSION} schon vorhanden. git pull..."
+  cd ${_GLUON_PATH}
+  git pull
 else
   echo "Clone Gluon ${_GLUON_VERSION}"
   git clone --depth 1 -b ${_GLUON_VERSION} https://github.com/freifunk-gluon/gluon.git gluon_${_GLUON_VERSION}
 fi
 
-cd gluon_${_GLUON_VERSION}
-
+cd ${_GLUON_PATH}
 
 echo ""
 echo "######################################################"
@@ -162,8 +178,10 @@ echo ""
 
 if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
   if [[ -d site-ffsuedpfalz ]]; then
-    echo "Ordner für site-ffsuedpfalz schon vorhanden"
-    #TODO git pull?
+    echo "Ordner für site-ffsuedpfalz schon vorhanden. git pull..."
+    cd site-ffsuedpfalz
+    git pull
+    cd ..
   else
     echo "Clone site-ffsuedpfalz "
     git clone --depth 1 -b ${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffsuedpfalz
@@ -180,6 +198,7 @@ if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
   echo $(date)
   echo "make update ..."
   make update
+  #make clean GLUON_TARGET=ar71xx-generic
   echo ""
 
   # bauen
@@ -205,8 +224,10 @@ echo ""
 
 if [[ ${_BAUE_FFHASSLOCH} ]]; then
   if [[ -d site-ffhassloch ]]; then
-    echo "Ordner für site-ffhassloch schon vorhanden"
-    #TODO git pull?
+    echo "Ordner für site-ffhassloch schon vorhanden. git pull..."
+    cd site-ffhassloch
+    git pull
+    cd ..
   else
     echo "Clone site-ffhassloch"
     git clone --depth 1 -b ffhassloch-${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffhassloch
@@ -222,6 +243,7 @@ if [[ ${_BAUE_FFHASSLOCH} ]]; then
   echo $(date)
   echo "make update ..."
   make update
+  #make clean GLUON_TARGET=ar71xx-generic
   echo ""
 
   # bauen
@@ -258,6 +280,3 @@ fi
 #ecdsaverify -f fingerabdurck -p pukkeay fiel
 # echo 3 > /proc/sys/vm/drop_caches
 # sysupgrade ....
-
-
-
