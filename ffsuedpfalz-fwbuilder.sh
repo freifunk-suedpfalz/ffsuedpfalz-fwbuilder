@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.1"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.2"
 echo "######################################################"
 echo ""
 
@@ -128,7 +128,11 @@ while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
   read -e -p "Images für Freifunk-Suedpfalz bauen? [J/n] " _ANTWORT
 done
 if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
-  _BAUE_FFSUEDPFALZ=1
+  # Firmware Version
+  _FWVER_FFSUEDPFALZ=""
+  while [[ ! ${_FWVER_FFSUEDPFALZ,,} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; do
+    read -e -p "Firmware Version für Freifunk-Suedpfalz? " _FWVER_FFSUEDPFALZ
+  done
 fi
 
 _ANTWORT="notset"
@@ -136,7 +140,11 @@ while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
   read -e -p "Images für Freifunk-Hassloch bauen? [J/n] " _ANTWORT
 done
 if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
-  _BAUE_FFHASSLOCH=1
+  # Firmware Version
+  _FWVER_FFHASSLOCH=""
+  while [[ ! ${_FWVER_FFHASSLOCH,,} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; do
+    read -e -p "Firmware Version für Freifunk-Hassloch? " _FWVER_FFHASSLOCH
+  done
 fi
 
 
@@ -168,15 +176,15 @@ echo "######################################################"
 echo "Sites holen, Images bauen und signieren"
 echo "######################################################"
 
-# macht aus v2016.1.x v2016.1 
-_SITE_VERSION=${_GLUON_VERSION%.*} 
+# macht aus v2016.1.x v2016.1
+_SITE_VERSION=${_GLUON_VERSION%.*}
 
 
 #Images für Freifunk-Suedpfalz bauen
 echo ""
 echo ""
 
-if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
+if [[ ${_FWVER_FFSUEDPFALZ} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   if [[ -d site-ffsuedpfalz ]]; then
     echo "Ordner für site-ffsuedpfalz schon vorhanden. git pull..."
     cd site-ffsuedpfalz
@@ -187,7 +195,7 @@ if [[ ${_BAUE_FFSUEDPFALZ} ]]; then
     git clone --depth 1 -b ${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffsuedpfalz
   fi
   export GLUON_SITEDIR=${_GLUON_PATH}/site-ffsuedpfalz
-
+  export FWVER=${_FWVER_FFSUEDPFALZ}
   export GLUON_IMAGEDIR=${_GLUON_PATH}/images-ffsuedpfalz
   if [[ -d ${GLUON_IMAGEDIR} ]];then
     #TODO nachfragen ob löschen?
@@ -222,7 +230,7 @@ fi
 echo ""
 echo ""
 
-if [[ ${_BAUE_FFHASSLOCH} ]]; then
+if [[ ${_FWVER_FFHASSLOCH} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   if [[ -d site-ffhassloch ]]; then
     echo "Ordner für site-ffhassloch schon vorhanden. git pull..."
     cd site-ffhassloch
@@ -233,6 +241,7 @@ if [[ ${_BAUE_FFHASSLOCH} ]]; then
     git clone --depth 1 -b ffhassloch-${_SITE_VERSION} https://github.com/freifunk-suedpfalz/site-ffsuedpfalz.git site-ffhassloch
   fi
   export GLUON_SITEDIR=${_GLUON_PATH}/site-ffhassloch
+  export FWVER=${_FWVER_FFHASSLOCH}
   export GLUON_IMAGEDIR=${_GLUON_PATH}/images-ffhassloch
   if [[ -d ${GLUON_IMAGEDIR} ]];then
     #TODO nachfragen ob löschen?
