@@ -211,7 +211,7 @@ if [[ ${_FWVER_FFSUEDPFALZ} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 
   # bauen
   echo $(date)
-  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
@@ -257,7 +257,7 @@ if [[ ${_FWVER_FFHASSLOCH} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 
   # bauen
   echo $(date)
-  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
