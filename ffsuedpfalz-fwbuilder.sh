@@ -99,10 +99,26 @@ echo ""
 
 # Build Target auswählen
 # ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest x86-64 x86-xen_domu
-while [[ "$GLUON_TARGET" != "ar71xx-generic" && "$GLUON_TARGET" != "ar71xx-nand" && "$GLUON_TARGET" != "mpc85xx-generic" && "$GLUON_TARGET" != "x86-generic" && "$GLUON_TARGET" != "x86-kvm_guest" && "$GLUON_TARGET" != "x86-64" && "$GLUON_TARGET" != "x86-xen_domu" ]]; do
-  read -e -p "Gluon Target ( ar71xx-generic | ar71xx-nand | mpc85xx-generic | x86-generic | x86-kvm_guest | x86-64 | x86-xen_domu ) bauen: " -i "ar71xx-generic" GLUON_TARGET
+PS3='Please enter your choice: '
+options=("ar71xx-generic" "ar71xx-nand" "mpc85xx-generic" "x86-generic" "x86-kvm_guest" "x86-64" "x86-xen_domu" "brcm2708-bcm2709" "sunxi")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "brcm2708-bcm2709")
+                GLUON_TARGET="brcm2708-bcm2709 BROKEN=1";
+                break
+                ;;
+        "sunxi")
+                GLUON_TARGET="sunxi BROKEN=1";
+                break
+                ;;
+        *) 
+                GLUON_TARGET=${options[$opt]}
+                break
+                ;;
+    esac
 done
-export GLUON_TARGET
+echo Auswahl:${GLUON_TARGET}
 
 # Secret-key zum signieren der Manifestdatei
 read -e -p "Dein privater ecdsa-key zum signieren der Manifestdatei: " -i ${_SECRETKEY} _SECRETKEY
@@ -211,7 +227,7 @@ if [[ ${_FWVER_FFSUEDPFALZ} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 
   # bauen
   echo $(date)
-  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
@@ -257,7 +273,7 @@ if [[ ${_FWVER_FFHASSLOCH} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 
   # bauen
   echo $(date)
-  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=ar71xx-generic
+  make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
 
   # TODO bei Fehler make nochmal mit V=s starten
