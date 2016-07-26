@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.2"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.3"
 echo "######################################################"
 echo ""
 
@@ -32,6 +32,7 @@ echo ""
 echo "checke Abhänigkeiten..."
 echo ""
 
+#TODO Alle Abhängikeiten checken
 _laeuft=true
 
 if [[ $(which curl) ]]; then
@@ -55,14 +56,28 @@ else
   _laeuft=false
 fi
 
-#TODO alle Abhängikeiten checken
+if [[ $(which make) ]]; then
+  echo "OK make ist da"
+else
+  echo "make fehlt"
+  _laeuft=false
+fi
 
-[[ ${_laeuft} ]] || exit;
 
 #TODO fehlendes Zeugs installieren / erzeugen?
 #apt-get -y install curl cmake git subversion make pkg-config build-essential unzip libncurses-dev gawk libssl-dev......
 
+if [[ $_laueft == false ]]; then
+  _ANTWORT="notset"
+  while [[ ! ${_ANTWORT,,} =~ ^(ja|j|nein|n|)$ ]]; do
+    read -e -p "Zeugs installieren? [J/n] " _ANTWORT
+  done
+  if [[ ${_ANTWORT,,} =~ ^(ja|j|)$ ]];then
+    sudo apt-get -y install curl cmake git subversion make pkg-config build-essential unzip libncurses-dev zlib1g-dev libssl-dev
+  fi
+fi
 
+[[ ${_laeuft} ]] || exit;
 
 
 
@@ -105,7 +120,7 @@ do
     	 "experimental")
                 GLUON_BRANCH="experimental";
                 break;;
-       	*) 
+       	*)
                 echo 'Falsche Auswahl'
                 ;;
     esac
@@ -145,7 +160,7 @@ do
         "sunxi")
                 GLUON_TARGET="sunxi BROKEN=1";
                 break;;
-        *) 
+        *)
                 echo 'Falsche Auswahl'
                 ;;
     esac
@@ -262,8 +277,6 @@ if [[ ${_FWVER_FFSUEDPFALZ} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
 
-  # TODO bei Fehler make nochmal mit V=s starten
-
   # TODO nur signieren wenn make durchlief
   # signieren
   make manifest
@@ -307,8 +320,6 @@ if [[ ${_FWVER_FFHASSLOCH} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo $(date)
   make ${_VERBOSE} -j ${_CPUs} GLUON_TARGET=${GLUON_TARGET}
   echo ""
-
-  # TODO bei Fehler make nochmal mit V=s starten
 
   # TODO nur signieren wenn make durchlief
   # signieren
