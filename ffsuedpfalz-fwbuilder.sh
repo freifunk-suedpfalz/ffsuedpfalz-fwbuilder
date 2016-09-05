@@ -126,6 +126,10 @@ do
     esac
 done
 echo Firmware Branch:${GLUON_BRANCH}
+
+# mit export GLUON_BRANCH wird Autoupdate aktiviert voreingestellt
+export GLUON_BRANCH
+echo ""
 # Build Target auswählen
 # ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest x86-64 x86-xen_domu
 PS3='Please enter your choice: '
