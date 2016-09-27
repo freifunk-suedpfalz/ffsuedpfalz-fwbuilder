@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.3"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.4"
 echo "######################################################"
 echo ""
 
@@ -244,7 +244,7 @@ echo "Sites holen, Images bauen und signieren"
 echo "######################################################"
 
 # macht aus v2016.1.x v2016.1
-_SITE_VERSION=${_GLUON_VERSION%.*}
+_SITE_VERSION=`expr match "$_GLUON_VERSION" '\(v[0-9]*\.[0-9]\)'`
 
 
 #Images für Freifunk-Suedpfalz bauen
