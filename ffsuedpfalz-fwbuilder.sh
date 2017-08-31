@@ -21,7 +21,7 @@ _SECRETKEY=~/ecdsa_key_ffsuedpfalz
 
 echo ""
 echo "######################################################"
-echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.4"
+echo "Freifunk-Südpfalz Firmwarebuilder v.0.1.5"
 echo "######################################################"
 echo ""
 
@@ -94,7 +94,7 @@ _LATEST_RELEASE=${_RELEASE_TAGS%% *}
 _RELEASE_TAGS="master ${_RELEASE_TAGS}"
 
 echo "Aktuell verfügbare Gluon Versionen:"
-echo ${_RELEASE_TAGS}
+echo ${_RELEASE_TAGS} | tr ' ' '\n'
 
 # Gluon Version auswählen
 _GLUON_VERSION="notset"
@@ -130,44 +130,24 @@ echo Firmware Branch:${GLUON_BRANCH}
 # mit export GLUON_BRANCH wird Autoupdate aktiviert voreingestellt
 export GLUON_BRANCH
 echo ""
+
+
 # Build Target auswählen
+_TARGETS=$(curl -nsSi -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -X GET https://api.github.com/repos/freifunk-gluon/gluon/contents/targets?ref=$_GLUON_VERSION | grep name | cut -d'"' -f4 | tr '\n' ' ')
 # ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest x86-64 x86-xen_domu
-PS3='Please enter your choice: '
-options=("ar71xx-generic" "ar71xx-nand" "mpc85xx-generic" "x86-generic" "x86-kvm_guest" "x86-64" "x86-xen_domu" "brcm2708-bcm2709" "sunxi")
+
+GLUON_TARGET=""
+COLUMNS=12
+PS3='Bitte entscheide dich: '
+options=($_TARGETS)
 select opt in "${options[@]}"
 do
-    case $opt in
-        "ar71xx-generic")
-                GLUON_TARGET="ar71xx-generic";
-                break;;
-        "ar71xx-nand")
-                GLUON_TARGET="ar71xx-nand";
-                break;;
-        "mpc85xx-generic")
-                GLUON_TARGET="mpc85xx-generic";
-                break;;
-        "x86-generic")
-                GLUON_TARGET="x86-generic";
-                break;;
-        "x86-kvm_guest")
-                GLUON_TARGET="x86-kvm_guest";
-                break;;
-        "x86-64")
-                GLUON_TARGET="x86-64";
-                break;;
-        "x86-xen_domu")
-                GLUON_TARGET="x86-xen_domu";
-                break;;
-        "brcm2708-bcm2709")
-                GLUON_TARGET="brcm2708-bcm2709 BROKEN=1";
-                break;;
-        "sunxi")
-                GLUON_TARGET="sunxi BROKEN=1";
-                break;;
-        *)
-                echo 'Falsche Auswahl'
-                ;;
-    esac
+  case $opt in
+    "brcm2708-bcm2709") GLUON_TARGET="brcm2708-bcm2709 BROKEN=1"; break ;;
+               "sunxi") GLUON_TARGET="sunxi BROKEN=1" break;;
+                    "") echo 'Falsche Auswahl' ;;
+                     *) GLUON_TARGET=$opt; break
+  esac
 done
 echo Auswahl Target:${GLUON_TARGET}
 
