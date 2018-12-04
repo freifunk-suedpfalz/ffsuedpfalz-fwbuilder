@@ -90,8 +90,8 @@ fi
 _RELEASE_TAGS=$(curl -nsSi -H 'Accept: application/vnd.github.v3+json' -H 'Content-Type: application/json' -X GET https://api.github.com/repos/freifunk-gluon/gluon/releases | grep tag_name | cut -d'"' -f4 | tr '\n' ' ')
 _LATEST_RELEASE=${_RELEASE_TAGS%% *}
 
-# master hinzufügen
-_RELEASE_TAGS="master ${_RELEASE_TAGS}"
+# master und next hinzufügen
+_RELEASE_TAGS="master next ${_RELEASE_TAGS}"
 
 echo "Aktuell verfügbare Gluon Versionen:"
 echo ${_RELEASE_TAGS} | tr ' ' '\n'
